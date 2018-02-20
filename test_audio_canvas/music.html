@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<style>
+		/*畫面CSS*/
+		div#mp3_player{
+			width:500px;
+			height: 60px;
+			background: #000;
+			padding: 5px;
+			margin: 50px auto;
+		}
+
+		div#mp3_player > div >audio {
+			width: 500px;
+			background: #000;
+			float: left;
+		}
+
+		div#mp3_player > canvas{
+			width: 500px;
+			height: 30px;
+			background: #002D3C;
+			float: left;
+		}
+	</style>
+	<script>
+		var audio = new Audio(); //產生物件
+		audio.src = "Words.mp3"; //音檔名稱
+		audio.controls = true; //屬性
+		audio.loop = true;
+		audio.autoplay = true;
+
+		window.addEventListener("load", init , false); //監聽如果音樂載入完成執行init方法
+
+		function init(){
+			document.querySelector("#audio_box").appendChild(audio);
+			context = new AudioContext(); //取得音檔內容
+			analyser = context.createAnalyser(); //視覺化物件
+			canvas = document.querySelector("#analyser_render");
+			ctx = canvas.getContext('2d'); //2d的canvas
+			source = context.createMediaElementSource(audio);
+			source.connect(analyser);
+			analyser.connect(context.destination);
+			frameLooper();
+		}
+
+		function frameLooper(){
+			window.requestAnimationFrame(frameLooper);
+			fbc_array = new Uint8Array(analyser.frequencyBinCount);
+			analyser.getByteFrequencyData(fbc_array);
+			ctx.clearRect(0 , 0 , canvas.width , canvas.height); //清空指定畫面
+			ctx.fillStyle = "#00CCFF"; //視覺顏色
+			bars = 100; //bar數量
+			for(var i = 0 ; i < bars ; i++){ //公式
+				bar_x = i*3;
+				bar_width = 2;
+				bar_height = -(fbc_array[i]/2);
+
+				ctx.fillRect(bar_x , canvas.height , bar_width , bar_height);
+			}
+		}
+	</script>
+</head>
+<body>
+<div id="mp3_player">
+	<div id="audio_box"></div>
+	<canvas id="analyser_render"></canvas>
+</div>
+<script>
+
+
+</script>
+</body>
+</html>
